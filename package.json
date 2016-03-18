@@ -1,0 +1,25 @@
+{
+  "name": "esdf-ws-client",
+  "version": "0.1.0",
+  "description": "a client-side overlay for WebSockets",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rkaw92/esdf-ws-client.git"
+  },
+  "author": "Robert Kawecki <robert+npm@rkaw.pl>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/greatcare/esdf-ws-client/issues"
+  },
+  "homepage": "https://github.com/greatcare/esdf-ws-client/issues",
+  "dependencies": {
+    "eventemitter2": "^1.0.0",
+    "uuid": "^2.0.1",
+    "when": "^3.7.7",
+    "ws": "^1.0.1"
+  }
+}
