@@ -94,7 +94,7 @@ This basic JSON-RPC 2.0 client lacks support for notifications and bulk requests
 Messages that do not look like JSON-RPC 2.0 are silently ignored, making it possible to multiplex several protocols within the WebSocket transport by having multiple `message` listeners. Note that, upon construction, the JSONRPC client becomes a listener for the `message` event on the passed transport, but that does not make it the sole listener. Thus, any other listeners that handle non-RPC messages must be aware that they will also be getting `message` events containing JSON-RPC 2.0 payloads, and ignore them accordingly.
 
 #### JSONRPC#call(method, params) => Promise
-Call the remote method named **<method>**, passing it parameters **<params>**. The parameters can be of any shape accepted by the remote method - usually, array (positional arguments) or a key-value object (named arguments).
+Call the remote method named **method**, passing it parameters **params**. The parameters can be of any shape accepted by the remote method - usually, array (positional arguments) or a key-value object (named arguments).
 
 Returns a Promise which fulfills with the result of the call, or rejects if a remote error or a transport error occurs. In particular, if the transport disconnects during the call, the promise is rejected with a `DisconnectError`.
 
