@@ -46,7 +46,7 @@ var client = require('esdf-ws-client');
 // Get a Node module that is WebSocket-compatible
 var socketImplementation = require('ws');
 // Generate a class constructor by injecting the socket implementation:
-var SocketTransport = client.SocketTansport(ws);
+var SocketTransport = client.SocketTansport(socketImplementation);
 // Now we can use the constructor:
 var myTransport = new SocketTransport('ws://localhost:1234');
 ```
