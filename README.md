@@ -89,7 +89,7 @@ A JSONRPC is an object that uses an existing `SocketTransport` (passed as the so
 
 This basic JSON-RPC 2.0 client lacks support for notifications and bulk requests/replies - it can only handle the obvious case when all requests and replies have IDs assigned. For asynchronous notifications, use the raw transport class.
 
-Messages that do not look like JSON-RPC 2.0 are silently ignored, making it possible to multiplex several protocols within the WebSocket transport by having multiple `message` listeners.
+Messages that do not look like JSON-RPC 2.0 are silently ignored, making it possible to multiplex several protocols within the WebSocket transport by having multiple `message` listeners. Note that, upon construction, the JSONRPC client becomes a listener for the `message` event on the passed transport, but that does not make it the sole listener. Thus, any other listeners that handle non-RPC messages must be aware that they will also be getting `message` events containing JSON-RPC 2.0 payloads, and ignore them accordingly.
 
 #### JSONRPC#call(method, params) => Promise
 Call the remote method named **<method>**, passing it parameters **<params>**. The parameters can be of any shape accepted by the remote method - usually, array (positional arguments) or a key-value object (named arguments).
@@ -99,5 +99,33 @@ Returns a Promise which fulfills with the result of the call, or rejects if a re
 #### JSONRPC#abortAll(error?)
 Abort all outstanding method calls and reject their respective promises with the given optional error, which defaults to a normal JavaScript `Error` containing an explanatory message.
 
-### exports.Commander()
-To be continued...
+### exports.Commander() => class Commander(RPCClient, options)
+Generate a Commander constructor. The generated constructor accepts a single mandatory argument - an instance of `JSONRPC`. Additionally, one can pass an Object (key-value) of options (which are, for now, undocumented - please see the short source).
+
+A Commander object is a helper over the normal JSONRPC client. It provides automatic retries of requests that have failed and are considered to be "retriable" - connection and transport errors (though custom errors could be used that have an `isRetriable` property equal to true).
+
+#### Commander#call(method, params) => Promise
+Call a given remote method via JSON-RPC. This behaves identically to `JSONRPC#call`, but provides transparent retries - where a low-level call would be rejected immediately with a transport error, this variant tries several times, and only rejects when the retry strategy gives up. To the caller, it looks as if the promise resolution just takes a longer time than usual in case of network problems (though may still reject if the issues persist).
+
+Note that the back-end system, whatever that may be, must be prepared to handle duplicate method calls (be *idempotent*). Otherwise, retrying any given operation may have unpredictable consequences.
+
+#### Commander#triggerRetries()
+Notify the commander that it is a good time to retry all calls that have been waiting for their turn. The Commander itself does not listen to the transport layer directly, so it does not "know" when a lost connection has returned. An external component, such as an `AppClient`, may hold references to both the commander and the transport, and poke the commander whenever the transport has regained connectivity.
+
+### exports.AppClient(SocketConstructor) => class AppClient(socketURL)
+Get a constructor for the AppClient class, backed by a particular WebSocket implementation. Underlying sockets are then constructed by calling `new SocketConstructor(socketURL)`. An AppClient constructs its own SocketTransport, JSONRPC and Commander, and manages them so that RPC retries are done when the connection has returned. At the same time, it exposes the constructed objects, so that the raw transport layer may be interacted with directly if any other data besides JSON-RPC 2.0 should travel on it.
+
+#### AppClient#send(message)
+Behaves just like the Commander's `call` method. The only difference is that retries are potentially done faster upon detecting that a connection is back.
+
+#### AppClient#transport
+A reference to the underlying `SocketTransport` instance.
+
+#### AppClient#RPC
+A reference to the `JSONRPC` instance used.
+
+#### AppClient#commander
+A reference to the `Commander` instance that messages are sent via.
+
+## License
+MIT - see the file `LICENSE`.
