@@ -20,7 +20,7 @@ webpack app.js bundle.js
 ```
 to generate the bundle file. Webpack should be able to find the dependency and resolve the `require` statement.
 
-Some usage examples for the various layers provided by this library can be seen in the `manual-tests` directory.
+**Some usage examples for the various layers provided by this library can be seen in the `manual-tests` directory.**
 
 ## Exported symbols
 
@@ -36,6 +36,8 @@ var SocketTransport = require('esdf-ws-client').SocketTransport(ws);
 This way, the library is independent from a given WebSocket implementation, as long as the API is WebSocket-compatible. The second (Node.js) example is actually included in the `manual-tests/` directory. Currently, only the `ws` Node module is known to implement the WebSocket API such that it is compatible to the browser side.
 
 ## API layers
+
+Several "levels" of the API are provided. From the bottom: SocketTransport (low-level socket messages), JSONRPC, Commander, AppClient (high-level RPC calls with retries).
 
 ### exports.SocketTransport(SocketConstructor) => class SocketTransport(socketURL)
 Generate a SocketTransport constructor from a given underlying WebSocket implementation. A SocketTransport is an object that simulates a WebSocket connection, but adds automatic reconnects and simplifies state management.
@@ -115,7 +117,9 @@ Notify the commander that it is a good time to retry all calls that have been wa
 ### exports.AppClient(SocketConstructor) => class AppClient(socketURL)
 Get a constructor for the AppClient class, backed by a particular WebSocket implementation. Underlying sockets are then constructed by calling `new SocketConstructor(socketURL)`. An AppClient constructs its own SocketTransport, JSONRPC and Commander, and manages them so that RPC retries are done when the connection has returned. At the same time, it exposes the constructed objects, so that the raw transport layer may be interacted with directly if any other data besides JSON-RPC 2.0 should travel on it.
 
-#### AppClient#send(message)
+**This is the high-level API.**
+
+#### AppClient#call(method, params) => Promise
 Behaves just like the Commander's `call` method. The only difference is that retries are potentially done faster upon detecting that a connection is back.
 
 #### AppClient#transport
