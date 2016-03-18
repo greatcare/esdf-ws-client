@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/rkaw92/esdf-ws-client.git"
+    "url": "https://github.com/greatcare/esdf-ws-client.git"
   },
   "author": "Robert Kawecki <robert+npm@rkaw.pl>",
   "license": "MIT",
